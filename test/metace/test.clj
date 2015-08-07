@@ -65,7 +65,7 @@
       (is (= (make-if (if-predicate if-exp)
                       (if-consequent if-exp)
                       (if-alternative if-exp)))
-             if-exp)))
+          if-exp)))
   (testing "begin expression"
     (let [begin-exp (read-string "(begin (+ 1 1) (+ 1 2))")]
       (is (= (begin? begin-exp) true))
@@ -85,4 +85,22 @@
       (is (= (no-operands? (operands procedure-exp)) false))
       (is (= (no-operands? (operands '(+))) true))
       (is (= (first-operand (operands procedure-exp)) '(+ 1 2)))
-      (is (= (rest-operands (operands procedure-exp)) '((+ 1 1)))))))
+      (is (= (rest-operands (operands procedure-exp)) '((+ 1 1))))))
+  (testing "cond expression"
+    (let [cond-exp '(cond ((> x 0) x)
+                          ((= x 0) (display 'zero) 0)
+                          (else (- x)))]
+      (is (= (cond? cond-exp) true))
+      (is (= (cond-clauses cond-exp) '(((> x 0) x)
+                                        ((= x 0) (display 'zero) 0)
+                                        (else (- x)))))
+      (is (= (cond-predicate (car (cond-clauses cond-exp))) '(> x 0)))
+      (is (= (cond-actions (car (cond-clauses cond-exp))) '(x)))
+      (is (= (cond-else-clause? (car (cond-clauses cond-exp))) false))
+      (is (= (cond-else-clause? (caddr (cond-clauses cond-exp))) true))
+      (is (= (cond->if cond-exp) '(if (> x 0)
+                                    x
+                                    (if (= x 0)
+                                      (begin (display 'zero)
+                                             0)
+                                      (- x))))))))

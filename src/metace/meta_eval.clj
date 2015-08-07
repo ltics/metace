@@ -158,6 +158,46 @@
   [ops]
   (cdr ops))
 
+;;派生表达式 其实已经有点宏的意思了 也就用一些基本的元素组成新的元素 但是在编译期展开成基本元素 也就是在运行时执行的还是基本元素
+(defn cond?
+  [exp]
+  (tagged-list? exp 'cond))
+
+(defn cond-clauses
+  [exp]
+  (cdr exp))
+
+(defn cond-predicate
+  [clause]
+  (car clause))
+
+(defn cond-actions
+  [clause]
+  (cdr clause))
+
+(defn cond-else-clause?
+  [clause]
+  (= (cond-predicate clause) 'else))
+
+(defn expand-clauses
+  [clauses]
+  (if (nil? clauses)
+    'false
+    (let [first-part (car clauses)
+          rest-part (cdr clauses)]
+      (if (cond-else-clause? first-part)
+        ;;其实只要empty?就好了
+        (if (or (empty? rest-part) (nil? rest-part))
+          (sequence->exp (cond-actions first-part))
+          (error "ELSE clause isn't last -- COND->IF" clauses))
+        (make-if (cond-predicate first-part)
+                 (sequence->exp (cond-actions first-part))
+                 (expand-clauses rest-part))))))
+
+(defn cond->if
+  [exp]
+  (expand-clauses (cond-clauses exp)))
+
 (comment
   (defn metaeval
     [exp env]
@@ -173,5 +213,4 @@
                                     env)
       (begin? exp) (eval-sequence (begin-actions exp) env)
       (cond? exp) (metaeval (cond->if exp) env)
-      (let? exp) (metaeval (let->lambda exp) env)
       :else (error "Unknown expression type -- EVAL" exp))))
