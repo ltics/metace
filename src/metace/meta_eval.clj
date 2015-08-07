@@ -2,12 +2,13 @@
   (:require [metace.cota :refer :all]))
 
 (def car first)
-(def cadr #(first (rest %)))
-(def cddr #(rest (rest %)))
-(def caadr #(first (first (rest %))))
-(def caddr #(first (rest (rest %))))
-(def cdadr #(rest (cadr %)))
-(def cadddr #(first (rest (cddr %))))
+(def cdr rest)
+(def cadr #(first (cdr %)))
+(def cddr #(cdr (cdr %)))
+(def caadr #(first (first (cdr %))))
+(def caddr #(first (cdr (cdr %))))
+(def cdadr #(cdr (cadr %)))
+(def cadddr #(first (cdr (cddr %))))
 
 (defn self-evaluating?
   [exp]
@@ -94,6 +95,43 @@
   (if (not (nil? (cadddr exp)))
     (cadddr exp)
     'false))
+
+(defn make-if
+  [predicate consequent alternative]
+  (if (= alternative 'false)
+    (list 'if predicate consequent)
+    (list 'if predicate consequent alternative)))
+
+(defn begin?
+  [exp]
+  (tagged-list? exp 'begin))
+
+(defn begin-actions
+  [exp]
+  (cdr exp))
+
+(defn last-exp?
+  [seq]
+  (empty? (cdr seq)))
+
+(defn first-exp
+  [seq]
+  (car seq))
+
+(defn rest-exps
+  [seq]
+  (cdr seq))
+
+(defn make-begin
+  [seq]
+  (cons 'begin seq))
+
+(defn sequence->exp
+  [seq]
+  (cond
+    (nil? seq) seq
+    (last-exp? seq) (first-exp seq)
+    :else (make-begin seq)))
 
 (comment
   (defn metaeval
