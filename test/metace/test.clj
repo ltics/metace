@@ -1,5 +1,6 @@
 (ns metace.test
   (:require [clojure.test :refer :all]
+            [metace.cota :refer :all]
             [metace.meta-eval :refer :all]))
 
 (deftest meta-test
