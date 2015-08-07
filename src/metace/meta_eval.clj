@@ -133,6 +133,31 @@
     (last-exp? seq) (first-exp seq)
     :else (make-begin seq)))
 
+(defn application?
+  [exp]
+  (list? exp))
+
+(defn operator
+  [exp]
+  (car exp))
+
+(defn operands
+  [exp]
+  (cdr exp))
+
+;;其实只用empty?也够了
+(defn no-operands?
+  [ops]
+  (or (empty? ops) (nil? ops)))
+
+(defn first-operand
+  [ops]
+  (car ops))
+
+(defn rest-operands
+  [ops]
+  (cdr ops))
+
 (comment
   (defn metaeval
     [exp env]

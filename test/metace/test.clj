@@ -76,4 +76,13 @@
       (is (= (rest-exps (begin-actions begin-exp)) '((+ 1 2))))
       (is (= (sequence->exp nil) nil))
       (is (= (sequence->exp '((+ 1 2))) '(+ 1 2)))
-      (is (= (sequence->exp (begin-actions begin-exp)) begin-exp)))))
+      (is (= (sequence->exp (begin-actions begin-exp)) begin-exp))))
+  (testing "procedure expression"
+    (let [procedure-exp (read-string "(+ (+ 1 2) (+ 1 1))")]
+      (is (= (application? procedure-exp) true))
+      (is (= (operator procedure-exp) '+))
+      (is (= (operands procedure-exp) '((+ 1 2) (+ 1 1))))
+      (is (= (no-operands? (operands procedure-exp)) false))
+      (is (= (no-operands? (operands '(+))) true))
+      (is (= (first-operand (operands procedure-exp)) '(+ 1 2)))
+      (is (= (rest-operands (operands procedure-exp)) '((+ 1 1)))))))
