@@ -5,7 +5,10 @@
 
 (deftest meta-test
   (testing "quote and read-string"
-    (is (= '(lambda (x y) (+ x y)) (read-string "(lambda (x y) (+ x y))")))))
+    (is (= '(lambda (x y) (+ x y)) (read-string "(lambda (x y) (+ x y))")))
+    (is (= (cons '(1 2 3) '(4 5 6)) '((1 2 3) 4 5 6)))
+    (is (= (car (cons '(1 2 3) '(4 5 6))) '(1 2 3)))
+    (is (= (cdr (cons '(1 2 3) '(4 5 6))) '(4 5 6)))))
 
 (deftest eval-test
   (testing "selfeval expression"
