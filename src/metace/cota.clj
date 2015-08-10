@@ -2,12 +2,12 @@
 
 (def car first)
 (def cdr rest)
-(def cadr #(first (cdr %)))
+(def cadr #(car (cdr %)))
 (def cddr #(cdr (cdr %)))
-(def caadr #(first (first (cdr %))))
-(def caddr #(first (cdr (cdr %))))
+(def caadr #(car (car (cdr %))))
+(def caddr #(car (cdr (cdr %))))
 (def cdadr #(cdr (cadr %)))
-(def cadddr #(first (cdr (cddr %))))
+(def cadddr #(car (cdr (cddr %))))
 
 (defn tagged-list?
   [exp tag]

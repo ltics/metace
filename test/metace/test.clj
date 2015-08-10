@@ -10,6 +10,18 @@
     (is (= (car (cons '(1 2 3) '(4 5 6))) '(1 2 3)))
     (is (= (cdr (cons '(1 2 3) '(4 5 6))) '(4 5 6)))))
 
+(deftest cota-test
+  (testing "scheme operation in clojure"
+    (let [lst '(1 (2 3 4) 5 (6 7))]
+      (is (= (car lst) 1))
+      (is (= (cdr lst) '((2 3 4) 5 (6 7))))
+      (is (= (cadr lst) '(2 3 4)))
+      (is (= (cddr lst) '(5 (6 7))))
+      (is (= (caadr lst) 2))
+      (is (= (caddr lst) 5))
+      (is (= (cdadr lst) '(3 4)))
+      (is (= (cadddr lst) '(6 7))))))
+
 (deftest eval-test
   (testing "selfeval expression"
     (let [string-exp "3"
