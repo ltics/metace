@@ -26,7 +26,7 @@
     (begin? exp) (eval-sequence (begin-actions exp) env)
     (cond? exp) (metaeval (cond->if exp) env)
     (application? exp) (metaapply (metaeval (operator exp) env)
-                              (list-of-values (operands exp) env))
+                                  (list-of-values (operands exp) env))
     :else (error "Unknown expression type -- EVAL" exp)))
 
 (defn list-of-values

@@ -1,7 +1,9 @@
 (ns metace.test
   (:require [clojure.test :refer :all]
             [metace.cota :refer :all]
-            [metace.meta-eval :refer :all]))
+            [metace.meta-eval :refer :all]
+            [metace.meta-env :refer :all]
+            [metace.meta-apply :refer :all]))
 
 (deftest meta-test
   (testing "quote and read-string"
@@ -120,3 +122,20 @@
                                       (begin (display 'zero)
                                              0)
                                       (- x))))))))
+
+(deftest env-test
+  (testing "frame operations"
+    (let [vars '(a b c)
+          vals '(1 2 3)
+          frame (make-frame vars vals)]
+      (is (= (frame-variables frame) vars))
+      (is (= (frame-values frame) vals))))
+  (testing "env operations"
+    (let [init-env (extend-environment (primitive-procedure-names)
+                                       (primitive-procedure-objects)
+                                       the-empty-environment)]
+      ;;用cadr是为了要去掉'primitive
+      (is (= (apply (cadr (lookup-variable-value '+ init-env)) '(1 2 3)) 6))
+      (do
+        (add-binding-to-frame! 'mod (list 'primitive mod) (first-frame init-env))
+        (is (= (apply (cadr (lookup-variable-value 'mod init-env)) '(3 6)) 3))))))

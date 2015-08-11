@@ -44,6 +44,7 @@
   []
   (map car primitive-procedures))
 
+;;包在atom中做mutable
 (defn primitive-procedure-objects
   []
   (map (fn [proc]

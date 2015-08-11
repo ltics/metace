@@ -60,7 +60,7 @@
   (defn env-loop [env]
     (defn scan [vars vals]
       (cond (empty? vars) (env-loop (enclosing-environment env))
-            (= var (car vars) (reset! (car vals) val))
+            (= var (car vars)) (reset! (car vals) val)
             :else (scan (cdr vars) (cdr vals))))
     (if (= env the-empty-environment)
       (error "Unbound variable -- SET!" var)
@@ -75,7 +75,7 @@
   (let [frame (first-frame env)]
     (defn scan [vars vals]
       (cond (empty? vars) (add-binding-to-frame! var val frame)
-            (= var (car vars) (reset! (car vals) val))
+            (= var (car vars)) (reset! (car vals) val)
             :else (scan (cdr vars) (cdr vals))))
     (scan (frame-variables frame)
           (frame-values frame))))
