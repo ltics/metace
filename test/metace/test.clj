@@ -5,6 +5,9 @@
             [metace.meta-env :refer :all]
             [metace.meta-apply :refer :all]))
 
+(defmacro is= [& body]
+  `(is (= ~@body)))
+
 (deftest meta-test
   (testing "quote and read-string"
     (is (= '(lambda (x y) (+ x y)) (read-string "(lambda (x y) (+ x y))")))
@@ -138,4 +141,11 @@
       (is (= (apply (cadr (lookup-variable-value '+ init-env)) '(1 2 3)) 6))
       (do
         (add-binding-to-frame! 'mod (list 'primitive mod) (first-frame init-env))
-        (is (= (apply (cadr (lookup-variable-value 'mod init-env)) '(3 6)) 3))))))
+        (is (= (apply (cadr (lookup-variable-value 'mod init-env)) '(3 6)) 3)))
+      (do
+        (define-variable! 'add (list 'primitive +) init-env)
+        (is= (apply (cadr (lookup-variable-value 'add init-env)) '(1 2 3)) 6))
+      (do
+        ;;所以在往环境里放入新的operation的时候要用(list 'primitive xxx)而不是'(primitive xxx)因为后者会把真实操作的函数也quote成了一个symbol
+        (set-variable-value! 'add '(primitive +) init-env)
+        (is= (cadr (lookup-variable-value 'add init-env)) '+)))))
