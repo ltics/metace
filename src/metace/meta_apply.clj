@@ -1,6 +1,7 @@
 (ns metace.meta-apply
   (:require [metace.cota :refer :all]))
 
+;;compound procedure
 (defn make-procedure
   [parameters body env]
   (list 'procedure parameters body env))
@@ -17,6 +18,11 @@
   [p]
   (caddr p))
 
+(defn procedure-environment
+  [p]
+  (cadddr p))
+
+;;primitive procedure
 (def primitive-procedures
   (list (list '+ +)
         (list '- -)
@@ -27,10 +33,6 @@
         (list 'cons cons)
         (list 'null? nil?)
         (list '= =)))
-
-(defn procedure-environment
-  [p]
-  (cadddr p))
 
 (defn primitive-procedure?
   [proc]

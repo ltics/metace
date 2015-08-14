@@ -149,3 +149,15 @@
         ;;所以在往环境里放入新的operation的时候要用(list 'primitive xxx)而不是'(primitive xxx)因为后者会把真实操作的函数也quote成了一个symbol
         (set-variable-value! 'add '(primitive +) init-env)
         (is= (cadr (lookup-variable-value 'add init-env)) '+)))))
+
+(deftest apply-test
+  (testing "compound procedure"
+    (let [init-env (extend-environment (primitive-procedure-names)
+                                       (primitive-procedure-objects)
+                                       the-empty-environment)
+          compound-procedure (make-procedure '(x y) '(+ x y) init-env)]
+      (is= compound-procedure (list 'procedure '(x y) '(+ x y) init-env))
+      (is= (compound-procedure? compound-procedure) true)
+      (is= (procedure-parameters compound-procedure) '(x y))
+      (is= (procedure-body compound-procedure) '(+ x y))
+      (is= (procedure-environment compound-procedure) init-env))))
