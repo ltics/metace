@@ -160,4 +160,10 @@
       (is= (compound-procedure? compound-procedure) true)
       (is= (procedure-parameters compound-procedure) '(x y))
       (is= (procedure-body compound-procedure) '(+ x y))
-      (is= (procedure-environment compound-procedure) init-env))))
+      (is= (procedure-environment compound-procedure) init-env)))
+  (testing "primitive procedure"
+    (let [init-env (extend-environment (primitive-procedure-names)
+                                       (primitive-procedure-objects)
+                                       the-empty-environment)]
+      (is= (primitive-procedure? (lookup-variable-value '+ init-env)) true)
+      (is= (apply-primitive-procedure (lookup-variable-value '+ init-env) '(1 2 3)) 6))))
