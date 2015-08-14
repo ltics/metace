@@ -3,7 +3,8 @@
             [metace.cota :refer :all]
             [metace.meta-eval :refer :all]
             [metace.meta-env :refer :all]
-            [metace.meta-apply :refer :all]))
+            [metace.meta-apply :refer :all]
+            [metace.eval-apply :refer :all]))
 
 (defmacro is= [& body]
   `(is (= ~@body)))
@@ -167,3 +168,36 @@
                                        the-empty-environment)]
       (is= (primitive-procedure? (lookup-variable-value '+ init-env)) true)
       (is= (apply-primitive-procedure (lookup-variable-value '+ init-env) '(1 2 3)) 6))))
+
+;;the real trick is here
+(deftest eval-apply-test
+  ;;将传入的参数先eval掉变为基本值 算是应用序 call-by-value
+  (let [init-env (extend-environment (primitive-procedure-names)
+                                     (primitive-procedure-objects)
+                                     the-empty-environment)]
+    (testing "list of values"
+      (is= (list-of-values '((+ 1 2) (+ 1 1)) init-env) '(3 2)))
+    (testing "eval if"
+      (is= (true? (if-predicate '(if true 1 2))) true)
+      (is= (metaeval (if-predicate '(if true 1 2)) init-env) true)
+      (is= (eval-if '(if (= 1 1) 1 2) init-env) 1)
+      (is= (metaeval '(if (= 1 1) 1 2) init-env) 1))
+    (testing "eval sequence"
+      (is= (begin-actions '(begin (+ 1 2) (+ 1 1))) '((+ 1 2) (+ 1 1)))
+      (is= (eval-sequence '((+ 1 2) (+ 1 1)) init-env) 2)
+      (is= (metaeval '(begin (+ 1 2) (+ 1 1)) init-env) 2))
+    (testing "eval definition and assignment"
+      (is= (metaeval 1 init-env) 1)
+      ;;注意这个陷阱
+      (is= (assignment-variable '(define 'x 1)) '(quote x))
+      (do
+        (define-variable! 'x 1 init-env)
+        (is= (lookup-variable-value 'x init-env) 1)
+        (eval-definition '(define y 1) init-env)
+        (is= (metaeval 'y init-env) 1)
+        (eval-assignment '(set! x 3) init-env)
+        (is= (metaeval 'x init-env) 3)
+        (metaeval '(define z 1) init-env)
+        (is= (metaeval 'z init-env) 1)
+        (metaeval '(set! z 3) init-env)
+        (is= (metaeval 'z init-env) 3)))))

@@ -1,11 +1,14 @@
 (ns metace.meta-eval
   (:require [metace.cota :refer :all]))
 
+(def boolean? #(or (true? %) (false? %)))
+
 (defn self-evaluating?
   [exp]
   (cond
     (number? exp) true
     (string? exp) true
+    (boolean? exp) true
     :else false))
 
 (def variable? symbol?)
@@ -174,7 +177,7 @@
         ;;其实只要empty?就好了
         (if (or (empty? rest-part) (nil? rest-part))
           (sequence->exp (cond-actions first-part))
-          (error "ELSE clause isn't last -- COND->IF" clauses))
+          (error "ELSE clause isn't last -- COND->IF -> " clauses))
         (make-if (cond-predicate first-part)
                  (sequence->exp (cond-actions first-part))
                  (expand-clauses rest-part))))))

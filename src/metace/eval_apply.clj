@@ -27,7 +27,7 @@
     (cond? exp) (metaeval (cond->if exp) env)
     (application? exp) (metaapply (metaeval (operator exp) env)
                                   (list-of-values (operands exp) env))
-    :else (error "Unknown expression type -- EVAL" exp)))
+    :else (error "Unknown expression type -- EVAL -> " exp)))
 
 (defn list-of-values
   [ops env]
@@ -69,4 +69,4 @@
                                                          (procedure-parameters procedure)
                                                          arguments
                                                          (procedure-environment procedure)))
-        :else (error "Unknown procedure type -- APPLY" procedure)))
+        :else (error "Unknown procedure type -- APPLY -> " procedure)))

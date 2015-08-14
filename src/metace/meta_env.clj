@@ -36,8 +36,8 @@
   (if (= (count vars) (count vals))
     (cons (make-frame vars vals) base-env)
     (if (< (count vars) (count vals))
-      (error "Too many arguments supplied" vars vals)
-      (error "Too few arguments supplied" vars vals))))
+      (error "Too many arguments supplied -> " vars vals)
+      (error "Too few arguments supplied -> " vars vals))))
 
 ;;从环境框架中寻找某一个变量的值
 (defn lookup-variable-value
@@ -48,7 +48,7 @@
             (= var (car vars)) @(car vals)
             :else (scan (cdr vars) (cdr vals))))
     (if (= env the-empty-environment)
-      (error "Unbound variable" var)
+      (error "Unbound variable -> " var)
       (let [frame (first-frame env)]
         (scan (frame-variables frame)
               (frame-values frame)))))
@@ -63,7 +63,7 @@
             (= var (car vars)) (reset! (car vals) val)
             :else (scan (cdr vars) (cdr vals))))
     (if (= env the-empty-environment)
-      (error "Unbound variable -- SET!" var)
+      (error "Unbound variable -- SET! -> " var)
       (let [frame (first-frame env)]
         (scan (frame-variables frame)
               (frame-values frame)))))
