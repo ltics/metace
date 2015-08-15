@@ -89,9 +89,11 @@
                       (if-alternative if-exp)))
           if-exp)))
   (testing "begin expression"
-    (let [begin-exp (read-string "(begin (+ 1 1) (+ 1 2))")]
+    (let [begin-exp (read-string "(begin (+ 1 1) (+ 1 2))")
+          begin-exp2 (read-string "(begin (+ 1 2))")]
       (is (= (begin? begin-exp) true))
       (is (= (begin-actions begin-exp) '((+ 1 1) (+ 1 2))))
+      (is= (begin-actions begin-exp2) '((+ 1 2)))
       (is (= (last-exp? (begin-actions begin-exp)) false))
       (is (= (last-exp? '((+ 1 2))) true))
       (is (= (first-exp (begin-actions begin-exp)) '(+ 1 1)))
@@ -156,11 +158,11 @@
     (let [init-env (extend-environment (primitive-procedure-names)
                                        (primitive-procedure-objects)
                                        the-empty-environment)
-          compound-procedure (make-procedure '(x y) '(+ x y) init-env)]
-      (is= compound-procedure (list 'procedure '(x y) '(+ x y) init-env))
+          compound-procedure (make-procedure '(x y) '((+ x y)) init-env)]
+      (is= compound-procedure (list 'procedure '(x y) '((+ x y)) init-env))
       (is= (compound-procedure? compound-procedure) true)
       (is= (procedure-parameters compound-procedure) '(x y))
-      (is= (procedure-body compound-procedure) '(+ x y))
+      (is= (procedure-body compound-procedure) '((+ x y)))
       (is= (procedure-environment compound-procedure) init-env)))
   (testing "primitive procedure"
     (let [init-env (extend-environment (primitive-procedure-names)
@@ -185,6 +187,7 @@
     (testing "eval sequence"
       (is= (begin-actions '(begin (+ 1 2) (+ 1 1))) '((+ 1 2) (+ 1 1)))
       (is= (eval-sequence '((+ 1 2) (+ 1 1)) init-env) 2)
+      (is= (eval-sequence '((+ 1 2)) init-env) 3)
       (is= (metaeval '(begin (+ 1 2) (+ 1 1)) init-env) 2))
     (testing "eval definition and assignment"
       (is= (metaeval 1 init-env) 1)
@@ -200,4 +203,22 @@
         (metaeval '(define z 1) init-env)
         (is= (metaeval 'z init-env) 1)
         (metaeval '(set! z 3) init-env)
-        (is= (metaeval 'z init-env) 3)))))
+        (is= (metaeval 'z init-env) 3)))
+    (testing "apply"
+      (is= (metaapply (list 'primitive +) '(1 2 3)) 6)
+      (is= (metaeval '(+ 1 2 3) init-env) 6)
+      (let [compound (make-procedure '(x y) '((+ x y)) init-env)
+            compound2 (make-procedure '(x y) '((+ x y) (* x y)) init-env)]
+        (is= (procedure-body compound) '((+ x y)))
+        (is= (procedure-parameters compound) '(x y))
+        (is= (procedure-environment compound) init-env)
+        (is= (procedure-body compound2))
+        (let [new-env (extend-environment '(x y)
+                                          (map (fn [v] (atom v)) '(1 2))
+                                          init-env)]
+          (is= (lookup-variable-value 'x new-env) 1)
+          (is= (eval-sequence '((+ x y)) new-env) 3))
+        (is= (metaapply compound '(1 2)) 3)
+        (is= (metaapply compound2 '(1 3)) 3)
+        ;;要用metaeval去执行compound procedure需要将复合过程定义到环境中
+        ))))

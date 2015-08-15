@@ -67,6 +67,7 @@
         (compound-procedure? procedure) (eval-sequence (procedure-body procedure)
                                                        (extend-environment
                                                          (procedure-parameters procedure)
-                                                         arguments
+                                                         ;;加入到环境中的value必须是atom是可以被reset!的
+                                                         (map (fn [v] (atom v)) arguments)
                                                          (procedure-environment procedure)))
         :else (error "Unknown procedure type -- APPLY -> " procedure)))
