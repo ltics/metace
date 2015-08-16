@@ -45,6 +45,17 @@
         (user-print output)))
     (driver-loop)))
 
+(defn parse-file
+  [file]
+  (with-open [rdr (clojure.java.io/reader file)]
+    (let [lines (line-seq rdr)
+          count (count lines)]
+      (doseq [i (range count)]
+        (user-print (metaeval (read-string (nth lines i)) the-global-environment))))))
+
 (defn -main
   [& args]
-  (driver-loop))
+  (let [file (get-in (apply hash-map args) ["-f"])]
+    (if (nil? file)
+      (driver-loop)
+      (parse-file file))))

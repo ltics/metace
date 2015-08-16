@@ -221,7 +221,8 @@
       (let [compound (make-procedure '(x y) '((+ x y)) init-env)
             compound2 (make-procedure '(x y) '((+ x y) (* x y)) init-env)
             lambda-exp '((lambda (x) (+ x 1)) 2)
-            define-exp '(define (add x y) (+ x y))]
+            define-exp '(define (add x y) (+ x y))
+            define-exp2 '(define x 3)]
         (is= (procedure-body compound) '((+ x y)))
         (is= (procedure-parameters compound) '(x y))
         (is= (procedure-environment compound) init-env)
@@ -245,7 +246,10 @@
         (is= (definition-value define-exp) '(lambda (x y) (+ x y)))
         (do
           (metaeval define-exp init-env)
-          (is= (metaeval '(add 1 2) init-env) 3))))))
+          (is= (metaeval '(add 1 2) init-env) 3))
+        (do
+          (metaeval define-exp2 init-env)
+          (is= (metaeval 'x init-env) 3))))))
 
 ;;the main repl loop
 (deftest drive-test
