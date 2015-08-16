@@ -14,7 +14,7 @@
 
 (defn tagged-list?
   [exp tag]
-  (if (list? exp)
+  (if (seq? exp)
     (= (car exp) tag)
     false))
 

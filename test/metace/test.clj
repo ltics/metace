@@ -4,7 +4,8 @@
             [metace.meta-eval :refer :all]
             [metace.meta-env :refer :all]
             [metace.meta-apply :refer :all]
-            [metace.eval-apply :refer :all]))
+            [metace.eval-apply :refer :all]
+            [metace.core :refer :all]))
 
 (defmacro is= [& body]
   `(is (= ~@body)))
@@ -219,7 +220,8 @@
         (is= (metaeval car-exp init-env)) 1)
       (let [compound (make-procedure '(x y) '((+ x y)) init-env)
             compound2 (make-procedure '(x y) '((+ x y) (* x y)) init-env)
-            lambda-exp '((lambda (x) (+ x 1)) 2)]
+            lambda-exp '((lambda (x) (+ x 1)) 2)
+            define-exp '(define (add x y) (+ x y))]
         (is= (procedure-body compound) '((+ x y)))
         (is= (procedure-parameters compound) '(x y))
         (is= (procedure-environment compound) init-env)
@@ -238,4 +240,17 @@
         (do
           (is= (operator lambda-exp) '(lambda (x) (+ x 1)))
           (is= (operands lambda-exp) '(2))
-          (is= (metaeval lambda-exp init-env) 3))))))
+          (is= (metaeval lambda-exp init-env) 3))
+        (is= (definition-variable define-exp) 'add)
+        (is= (definition-value define-exp) '(lambda (x y) (+ x y)))
+        (do
+          (metaeval define-exp init-env)
+          (is= (metaeval '(add 1 2) init-env) 3))))))
+
+;;the main repl loop
+(deftest drive-test
+  (testing "global env"
+    (is= (eval-if '(if true 1 2) the-global-environment) 1)
+    (is= (eval-if '(if true 1 2) the-global-environment) 1)
+    (prompt-for-input input-prompt)
+    (announce-output output-prompt)))
