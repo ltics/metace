@@ -32,6 +32,7 @@
         (list 'cdr cdr)
         (list 'cons cons)
         (list 'null? null?)
+        (list 'list list)
         (list '= =)))
 
 (defn primitive-procedure?
