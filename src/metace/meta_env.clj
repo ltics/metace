@@ -44,7 +44,7 @@
   [var env]
   (defn env-loop [env]
     (defn scan [vars vals]
-      (cond (empty? vars) (env-loop (enclosing-environment env))
+      (cond (null? vars) (env-loop (enclosing-environment env))
             (= var (car vars)) @(car vals)
             :else (scan (cdr vars) (cdr vals))))
     (if (= env the-empty-environment)
@@ -59,7 +59,7 @@
   [var val env]
   (defn env-loop [env]
     (defn scan [vars vals]
-      (cond (empty? vars) (env-loop (enclosing-environment env))
+      (cond (null? vars) (env-loop (enclosing-environment env))
             (= var (car vars)) (reset! (car vals) val)
             :else (scan (cdr vars) (cdr vals))))
     (if (= env the-empty-environment)
@@ -74,7 +74,7 @@
   [var val env]
   (let [frame (first-frame env)]
     (defn scan [vars vals]
-      (cond (empty? vars) (add-binding-to-frame! var val frame)
+      (cond (null? vars) (add-binding-to-frame! var val frame)
             (= var (car vars)) (reset! (car vals) val)
             :else (scan (cdr vars) (cdr vals))))
     (scan (frame-variables frame)

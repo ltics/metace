@@ -9,6 +9,9 @@
 (def cdadr #(cdr (cadr %)))
 (def cadddr #(car (cdr (cddr %))))
 
+(def null? #(or (empty? %)
+                (nil? %)))
+
 (defn tagged-list?
   [exp tag]
   (if (list? exp)

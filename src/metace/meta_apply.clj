@@ -31,7 +31,7 @@
         (list 'car car)
         (list 'cdr cdr)
         (list 'cons cons)
-        (list 'null? nil?)
+        (list 'null? null?)
         (list '= =)))
 
 (defn primitive-procedure?

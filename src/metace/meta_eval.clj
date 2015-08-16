@@ -53,12 +53,17 @@
   [exp]
   (tagged-list? exp 'define))
 
+;;使用define这里需要区别两种情况
+;;(define x 3)
+;;(define (add x y) (+ x y))
 (defn definition-variable
   [exp]
   (if (symbol? (cadr exp))
     (cadr exp)
     (caadr exp)))
 
+;;所以说define func只是lambda的语法糖
+;;(define (add x y) (+ x y)) <=> (define add (lambda (x y) (+ x y)))
 (defn definition-value
   [exp]
   (if (symbol? (cadr exp))
@@ -80,15 +85,13 @@
 
 (defn if-alternative
   [exp]
-  (if (not (nil? (cadddr exp)))
+  (if (not (null? (cadddr exp)))
     (cadddr exp)
     'false))
 
 (defn make-if
   [predicate consequent alternative]
-  (if (= alternative 'false)
-    (list 'if predicate consequent)
-    (list 'if predicate consequent alternative)))
+  (list 'if predicate consequent alternative))
 
 (defn begin?
   [exp]
@@ -100,7 +103,7 @@
 
 (defn last-exp?
   [seq]
-  (empty? (cdr seq)))
+  (null? (cdr seq)))
 
 (defn first-exp
   [seq]
@@ -117,7 +120,7 @@
 (defn sequence->exp
   [seq]
   (cond
-    (nil? seq) seq
+    (null? seq) seq
     (last-exp? seq) (first-exp seq)
     :else (make-begin seq)))
 
@@ -133,10 +136,9 @@
   [exp]
   (cdr exp))
 
-;;其实只用empty?也够了
 (defn no-operands?
   [ops]
-  (or (empty? ops) (nil? ops)))
+  (null? ops))
 
 (defn first-operand
   [ops]
@@ -169,13 +171,12 @@
 
 (defn expand-clauses
   [clauses]
-  (if (nil? clauses)
+  (if (null? clauses)
     'false
     (let [first-part (car clauses)
           rest-part (cdr clauses)]
       (if (cond-else-clause? first-part)
-        ;;其实只要empty?就好了
-        (if (or (empty? rest-part) (nil? rest-part))
+        (if (null? rest-part)
           (sequence->exp (cond-actions first-part))
           (error "ELSE clause isn't last -- COND->IF -> " clauses))
         (make-if (cond-predicate first-part)

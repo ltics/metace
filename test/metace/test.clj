@@ -14,7 +14,10 @@
     (is (= '(lambda (x y) (+ x y)) (read-string "(lambda (x y) (+ x y))")))
     (is (= (cons '(1 2 3) '(4 5 6)) '((1 2 3) 4 5 6)))
     (is (= (car (cons '(1 2 3) '(4 5 6))) '(1 2 3)))
-    (is (= (cdr (cons '(1 2 3) '(4 5 6))) '(4 5 6)))))
+    (is (= (cdr (cons '(1 2 3) '(4 5 6))) '(4 5 6)))
+    ;;区别symbol和string
+    (is= (read-string "x") 'x)
+    (is= (read-string "\"x\"") "x")))
 
 (deftest cota-test
   (testing "scheme operation in clojure"
@@ -207,6 +210,13 @@
     (testing "apply"
       (is= (metaapply (list 'primitive +) '(1 2 3)) 6)
       (is= (metaeval '(+ 1 2 3) init-env) 6)
+      ;;quote在quote中就被还原为原来的样子了
+      (let [car-exp '(car '(1 2 3))]
+        (is= (metaeval (operator car-exp) init-env) (list 'primitive car))
+        (is= (operands car-exp) '('(1 2 3)))
+        (is= (list-of-values (operands car-exp) init-env) '((1 2 3)))
+        (is= (apply car '((1 2 3))))
+        (is= (metaeval car-exp init-env)) 1)
       (let [compound (make-procedure '(x y) '((+ x y)) init-env)
             compound2 (make-procedure '(x y) '((+ x y) (* x y)) init-env)
             lambda-exp '((lambda (x) (+ x 1)) 2)]
