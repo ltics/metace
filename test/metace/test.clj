@@ -49,14 +49,14 @@
     (let [lambda-exp (read-string "(lambda (x) (+ x 1))")]
       (is (= (lambda? lambda-exp) true))
       (is (= (lambda-parameters lambda-exp) '(x)))
-      (is (= (lambda-body lambda-exp) '(+ x 1)))
+      (is (= (lambda-body lambda-exp) '((+ x 1))))
       (is (= (make-lambda (lambda-parameters lambda-exp)
                           (lambda-body lambda-exp))
              lambda-exp)))
     (let [lambda-exp (read-string "(lambda (x y) (+ x y))")]
       (is (= (lambda? lambda-exp) true))
       (is (= (lambda-parameters lambda-exp) '(x y)))
-      (is (= (lambda-body lambda-exp) '(+ x y)))
+      (is (= (lambda-body lambda-exp) '((+ x y))))
       (is (= (make-lambda (lambda-parameters lambda-exp)
                           (lambda-body lambda-exp))
              lambda-exp))))
@@ -208,7 +208,8 @@
       (is= (metaapply (list 'primitive +) '(1 2 3)) 6)
       (is= (metaeval '(+ 1 2 3) init-env) 6)
       (let [compound (make-procedure '(x y) '((+ x y)) init-env)
-            compound2 (make-procedure '(x y) '((+ x y) (* x y)) init-env)]
+            compound2 (make-procedure '(x y) '((+ x y) (* x y)) init-env)
+            lambda-exp '((lambda (x) (+ x 1)) 2)]
         (is= (procedure-body compound) '((+ x y)))
         (is= (procedure-parameters compound) '(x y))
         (is= (procedure-environment compound) init-env)
@@ -221,4 +222,10 @@
         (is= (metaapply compound '(1 2)) 3)
         (is= (metaapply compound2 '(1 3)) 3)
         ;;要用metaeval去执行compound procedure需要将复合过程定义到环境中
-        ))))
+        (do
+          (define-variable! 'add2 compound init-env)
+          (is= (metaeval '(add2 1 2) init-env) 3))
+        (do
+          (is= (operator lambda-exp) '(lambda (x) (+ x 1)))
+          (is= (operands lambda-exp) '(2))
+          (is= (metaeval lambda-exp init-env) 3))))))

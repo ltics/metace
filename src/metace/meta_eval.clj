@@ -43,11 +43,11 @@
 
 (defn lambda-body
   [exp]
-  (caddr exp))
+  (cddr exp))
 
 (defn make-lambda
   [parameters body]
-  (list 'lambda parameters body))
+  (cons 'lambda (cons parameters body)))
 
 (defn definition?
   [exp]
@@ -64,7 +64,7 @@
   (if (symbol? (cadr exp))
     (caddr exp)
     (make-lambda (cdadr exp)
-                 (caddr exp))))
+                 (cddr exp))))
 
 (defn if?
   [exp]
