@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/zjhmale/metace.svg?branch=master)](https://travis-ci.org/zjhmale/metace)
+
 # metace
 
 meta circular evaluator in clojure
