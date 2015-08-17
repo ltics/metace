@@ -1,5 +1,6 @@
 (ns metace.core
-  (:require [metace.meta-env :refer :all]
+  (:require [metace.cota :refer :all]
+            [metace.meta-env :refer :all]
             [metace.meta-eval :refer :all]
             [metace.meta-apply :refer :all]
             [metace.eval-apply :refer :all]))
@@ -53,9 +54,33 @@
       (doseq [i (range count)]
         (user-print (metaeval (read-string (nth lines i)) the-global-environment))))))
 
+(defn parse-file-multiline
+  [file]
+  (with-open [rdr (clojure.java.io/reader file)]
+    (let [lines (filter #(not (or (empty? %)
+                                  (.startsWith % ";;")))
+                        (line-seq rdr))
+          linecount (count lines)]
+      (loop [llines lines]
+        ;;skip emptyline and commentline
+        (if (not (empty? llines))
+          (let [line (car llines)]
+            (let [left-bracket-num (count (re-seq #"\(" line))
+                  right-bracket-num (count (re-seq #"\)" line))]
+              ;;如果regex匹配不到re-seq返回的是nil不是空列表
+              (if (= left-bracket-num right-bracket-num)
+                (do
+                  (user-print (metaeval (read-string line) the-global-environment))
+                  (recur (cdr llines)))
+                (do
+                  (let [next-line (cadr llines)]
+                    (if next-line
+                      (recur (cons (str line next-line) (cddr llines))))))))))))))
+
 (defn -main
   [& args]
   (let [file (get-in (apply hash-map args) ["-f"])]
     (if (nil? file)
       (driver-loop)
-      (parse-file file))))
+      ;;(parse-file file)
+      (parse-file-multiline file))))
