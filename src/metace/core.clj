@@ -10,6 +10,7 @@
   (let [initial-env (extend-environment (primitive-procedure-names)
                                         (primitive-procedure-objects)
                                         the-empty-environment)]
+    ;;clojure的readmacro读入'true/'false进来就直接是boolean值了 下面这两个基本是摆设
     (define-variable! 'true true initial-env)
     (define-variable! 'false false initial-env)
     initial-env))

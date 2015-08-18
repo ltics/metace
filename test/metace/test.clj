@@ -254,7 +254,9 @@
 ;;the main repl loop
 (deftest drive-test
   (testing "global env"
-    (is= (eval-if '(if true 1 2) the-global-environment) 1)
-    (is= (eval-if '(if true 1 2) the-global-environment) 1)
+    (is= (metaeval '(if true 1 2) the-global-environment) 1)
+    (is= (metaeval '(if false 1 2) the-global-environment) 2)
+    (is (true? (lookup-variable-value 'true the-global-environment)))
+    (is (false? (lookup-variable-value 'false the-global-environment)))
     (prompt-for-input input-prompt)
     (announce-output output-prompt)))
