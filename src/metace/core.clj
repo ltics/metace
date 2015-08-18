@@ -83,10 +83,24 @@
                     (if next-line
                       (recur (cons (str line next-line) (cddr llines))))))))))))))
 
+(defn lambda-prompt []
+  (doseq [line ["     ---"
+                "        \\"
+                "         \\"
+                "          \\"
+                "          /\\"
+                "         /  \\"
+                "        /    \\"
+                "       /      \\"
+                "      /        \\"
+                "     /          \\"]]
+    (prn (symbol line))))
+
 (defn -main
   [& args]
-  (let [file (get-in (apply hash-map args) ["-f"])]
-    (if (nil? file)
-      (driver-loop)
-      ;;(parse-file file)
-      (parse-file-multiline file))))
+  (do (lambda-prompt)
+      (let [file (get-in (apply hash-map args) ["-f"])]
+        (if (nil? file)
+          (driver-loop)
+          ;;(parse-file file)
+          (parse-file-multiline file)))))
