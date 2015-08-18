@@ -37,12 +37,17 @@
                '<procedure-env>))
     (prn object)))
 
+(defn safeeval [exp env]
+  (try
+    (metaeval exp env)
+    (catch Exception e (.getMessage e))))
+
 (defn driver-loop
   []
   (do
     (prompt-for-input input-prompt)
     (let [input (read)]
-      (let [output (metaeval input the-global-environment)]
+      (let [output (safeeval input the-global-environment)]
         (announce-output output-prompt)
         (user-print output)))
     (driver-loop)))
@@ -53,7 +58,7 @@
     (let [lines (line-seq rdr)
           count (count lines)]
       (doseq [i (range count)]
-        (user-print (metaeval (read-string (nth lines i)) the-global-environment))))))
+        (safeeval (read-string (nth lines i)) the-global-environment)))))
 
 (defn parse-file-multiline
   [file]
@@ -71,7 +76,7 @@
               ;;如果regex匹配不到re-seq返回的是nil不是空列表
               (if (= left-bracket-num right-bracket-num)
                 (do
-                  (user-print (metaeval (read-string line) the-global-environment))
+                  (safeeval (read-string line) the-global-environment)
                   (recur (cdr llines)))
                 (do
                   (let [next-line (cadr llines)]

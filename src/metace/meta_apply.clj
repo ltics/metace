@@ -28,12 +28,19 @@
         (list '- -)
         (list '* *)
         (list '/ /)
+        (list '= =)
+        (list '< <)
+        (list '> >)
         (list 'car car)
         (list 'cdr cdr)
+        (list 'cadr cadr)
+        (list 'caddr caddr)
         (list 'cons cons)
         (list 'null? null?)
         (list 'list list)
-        (list '= =)))
+        (list 'display print)
+        (list 'displayln println)
+        (list 'newline newline)))
 
 (defn primitive-procedure?
   [proc]
